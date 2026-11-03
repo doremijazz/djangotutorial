@@ -1,4 +1,4 @@
-from django.db.models import F
+from django.db.models import F, Sum, Avg, Max
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -57,6 +57,21 @@ class FrequencyView(generic.DetailView):
         context["frequency"] = frequency
         context["total_votes"] = total_votes
 
+        return context
+class StatisticsView(generic.TemplateView):
+    model = Question
+    template_name = "polls/statistics.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context["total_questions"] = Question.objects.all().count()
+        context["total_choices"] = Choice.objects.all().count()
+        context["total_votes"] = Choice.objects.aggregate(total=Sum("votes"))["total"] or 0
+        context["moyennes"] = [{"id" : q.id,
+                               "moyenne" :  q.choice_set.aggregate(moyenne=Avg("votes"))["moyenne"] or 0}
+                              for q in Question.objects.all()]
+        context["last"] = Question.objects.order_by("-id").first()
         return context
 
 def vote(request, question_id):

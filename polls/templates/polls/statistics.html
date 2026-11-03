@@ -1,0 +1,18 @@
+<h1>Statistique des sondages</h1>
+
+<p>Total des sondage enregristré {{total_questions}}</p>
+<p>Total des choix possibles {{total_choices}}</p>
+<p>Nombre total de vote {{total_votes}}</p>
+
+<p>Moyenne de vote par sondage</p>
+<ul>
+    {% for q in moyennes %}
+        <li>{{q.id}} : {{q.moyenne}} votes</li>
+    {% empty %}
+        <li>Aucun sondage enregistré.</li>
+    {% endfor %}
+</ul>
+
+<p>Derniére question enregistré {{last}}</p>
+
+<a href="{% url 'polls:index' %}">Accueil</a>
