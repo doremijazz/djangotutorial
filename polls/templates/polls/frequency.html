@@ -1,0 +1,7 @@
+<h1>{{ question.question_text }}</h1>
+
+<ul>
+{% for choice in frequency %}
+    <li>{{ choice.choice_text }} -- {{ choice.votes }} vote{{ choice.votes|pluralize }} / {{choice.pourcentage}}</li>
+{% endfor %}
+</ul>
