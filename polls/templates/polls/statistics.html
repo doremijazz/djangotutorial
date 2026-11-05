@@ -1,3 +1,8 @@
+{% extends "base.html" %}
+{% block title %}My amazing blog{% endblock %}
+<body>
+{% block main %}
+
 <h1>Statistique des sondages</h1>
 
 <p>Total des sondage enregristré {{total_questions}}</p>
@@ -16,3 +21,5 @@
 <p>Derniére question enregistré {{last}}</p>
 
 <a href="{% url 'polls:index' %}">Accueil</a>
+{% endblock %}
+</body>

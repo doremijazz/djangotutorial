@@ -110,8 +110,12 @@ Question 5 : 3 choix
 >>>
 ```
 
-6. Optionel
-
+6. Optionnel
+```
+>>> Question.objects.order_by("-choice__votes").values("question_text")
+<QuerySet [{'question_text': "Comment s'appelle mon chien ?"}, {'question_text': 'Quelle planète est surnommée la planète rouge ?'}, {'question_text': 'Quelle planète est surnommée la planète rouge ?'}, {'question_text': "Comment s'appelle mon chien ?"}, {'question_text': "Comment s'appelle mon chien ?"}, {'question_text': 'Quel est le plus grand océan du monde ?'}, {'question_text': 'Quel est le plus grand océan du monde ?'}, {'question_text': 'Quel est le plus grand océan du monde ?'}, {'question_text': 'Quel langage est utilisé pour structurer une page web ?'}, {'question_text': 'Quel langage est utilisé pour structurer une page web ?'}, {'question_text': 'Quel langage est utilisé pour structurer une page web ?'}, {'question_text': 'Quelle planète est surnommée la planète rouge ?'}, {'question_text': 'Combien font 8 × 7 ?'}, {'question_text': 'Combien font 8 × 7 ?'}, {'question_text': 'Combien font 8 × 7 ?'}, {'question_text': 'Quel est le plus grans désert chaud du monde ?'}, {'question_text': 'Quel est le plus grans désert chaud du monde ?'}, {'question_text': 'Quel est le plus grans désert chaud du monde ?'}]>
+>>>
+```
 7. Tirer par date décroissante
 ```
 >>> for q in Question.objects.order_by("-pub_date"):
@@ -125,7 +129,11 @@ Questions : Comment s'appelle mon chien ? / publié 2026-11-02 13:08:23+00:00
 ```
 
 8. Optionnel
-
+```
+>>> Question.objects.filter(choice__choice_text__contains="t")
+<QuerySet [<Question: Comment s'appelle mon chien ?>, <Question: Quel est le plus grand océan du monde ?>, <Question: Quel langage est utilisé pour structurer une page web ?>, <Question: Quelle planète est surnommée la planète rouge ?>]>
+>>>
+```
 9. Ajouter uen question avec le shell 10. Puis 3 choix
 
 ```
@@ -197,3 +205,23 @@ Question.objects.order_by("-pub_date")[:2]
 ```
 
 12. Optionnel
+```
+>>> from django.contrib.auth.models import User
+>>> User.objects.all()
+<QuerySet [<User: bineta>, <User: eleve1>]>
+>>>
+```
+2.2.3 Optionnel
+
+4. Get choice
+```
+>>> from polls.models import Question
+>>> q = Question.objects.get(id=2)
+>>> print(q.get_choice())
+[('Océan Pacifique', 4, 0), ('Océan Atlantique', 5, 0), ('Océan indien', 6, 0)]
+```
+3.1 Tutorial
+
+3.2 Exercice sur tutorial 3 et 4
+
+1.

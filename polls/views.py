@@ -1,13 +1,17 @@
-from django.db.models import F, Sum, Avg, Max
+from django.db import transaction
+from django.db.models import F, Sum, Avg, Max, Model
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.db.models import F
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from django.utils import timezone
 from django.views import generic
 
+
+from .forms import QuestionForm, ChoiceForm, ChoiceFormSet
 from .models import Choice, Question
 
 
@@ -16,8 +20,13 @@ class IndexView(generic.ListView):
     context_object_name = "latest_question_list"
 
     def get_queryset(self):
-        """Return the last five published questions."""
-        return Question.objects.order_by("-pub_date")[:5]
+        """
+        Return the last five published questions (not including those set to be
+        published in the future).
+        """
+        return Question.objects.filter(pub_date__lte=timezone.now()).order_by("-pub_date")[
+            :5
+        ]
 
 class AllView(generic.ListView):
     model = Question
@@ -30,6 +39,12 @@ class AllView(generic.ListView):
 class DetailView(generic.DetailView):
     model = Question
     template_name = "polls/detail.html"
+
+    def get_queryset(self):
+        """
+        Excludes any questions that aren't published yet.
+        """
+        return Question.objects.filter(pub_date__lte=timezone.now())
 
 
 class ResultsView(generic.DetailView):
@@ -73,6 +88,49 @@ class StatisticsView(generic.TemplateView):
                               for q in Question.objects.all()]
         context["last"] = Question.objects.order_by("-id").first()
         return context
+
+def get_question(request):
+    if request.method == "POST":
+        form = QuestionForm(request.POST)
+        form_choices = ChoiceFormSet(request.POST)
+
+        if form.is_valid() and form_choices.is_valid():
+            choices = [
+                choice_form.save(commit=False)
+                for choice_form in form_choices
+                if choice_form.cleaned_data
+                and choice_form.cleaned_data.get("choice_text", "").strip()
+            ]
+
+            if not choices:
+                form_choices._non_form_errors = form_choices.error_class(
+                    ["Saisissez au moins une réponse."]
+                )
+            else:
+                with transaction.atomic():
+                    question = form.save(commit=False)
+                    question.pub_date = timezone.now()
+                    question.save()
+
+                    for choice in choices:
+                        choice.question = question
+                        choice.votes = 0
+                        choice.save()
+
+                return redirect("polls:index")
+
+    else:
+        form = QuestionForm()
+        form_choices = ChoiceFormSet()
+
+    return render(
+        request,
+        "polls/form.html",
+        {
+            "form": form,
+            "form_choices": form_choices,
+        }
+    )
 
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)

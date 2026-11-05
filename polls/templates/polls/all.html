@@ -1,3 +1,8 @@
+{% extends "base.html" %}
+
+{% block title %}My amazing blog{% endblock %}
+<body>
+{% block main %}
 {% if questions %}
 <ul>
     {% for question in questions %}
@@ -7,3 +12,6 @@
 {% else %}
     <p>No polls are available.</p>
 {% endif %}
+
+{% endblock %}
+</body>

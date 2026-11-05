@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr">
+{% extends "base.html" %}
+{% block title %}My amazing blog{% endblock %}
+<body>
+{% block main %}
+    <h1>Ajouter une question</h1>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <h2>Choix de réponse</h2>
+        <p>Saisissez entre 1 et 5 réponses.</p>
+
+        {{ form_choices.management_form }}
+        {{ form_choices.non_form_errors }}
+
+        {% for choice_form in form_choices %}
+            <p>
+                Réponse {{ forloop.counter }} :
+                {{ choice_form.choice_text }}
+                {{ choice_form.errors }}
+            </p>
+        {% endfor %}
+
+        <button type="submit">Enregistrer</button>
+    </form>
+
+    <a href="{% url 'polls:index' %}">Accueil</a>
+{% endblock %}
+</body>
+</html>

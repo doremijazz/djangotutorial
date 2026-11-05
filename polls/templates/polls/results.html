@@ -1,3 +1,7 @@
+{% extends "base.html" %}
+{% block title %}My amazing blog{% endblock %}
+<body>
+{% block main %}
 <h1>{{ question.question_text }}</h1>
 
 <ul>
@@ -7,3 +11,5 @@
 </ul>
 
 <a href="{% url 'polls:detail' question.id %}">Vote again?</a>
+{% endblock %}
+</body>
