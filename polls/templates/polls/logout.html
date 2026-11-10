@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block main %}
+<h1>Déconnexion</h1>
+<form method="post" action="{% url 'polls:deconnexion' %}">
+    {% csrf_token %}
+    <button type="submit">Se déconnecter</button>
+</form>
+{% endblock %}

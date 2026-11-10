@@ -9,10 +9,47 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views import generic
-
+from django.contrib.auth import authenticate, login, logout
+from django.shortcuts import render, redirect
+from django.views.decorators.http import require_POST
 
 from .forms import QuestionForm, ChoiceForm, ChoiceFormSet
 from .models import Choice, Question
+from .forms import InscriptionForm
+
+def connexion_personnalisee(request):
+    erreur = None
+    if request.method == "POST":
+        username = request.POST.get("username", "")
+        password = request.POST.get("password", "")
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect("polls:index")
+        erreur = "Identifiants incorrects."
+    return render(request, "polls/login.html", {"erreur": erreur})
+
+
+@require_POST
+def deconnexion(request):
+    logout(request)
+    return redirect("polls:index")
+
+def register(request):
+    if request.method == "POST":
+        form = InscriptionForm(request.POST)
+
+        if form.is_valid():
+            utilisateur = form.save()
+            return redirect("login")
+    else:
+        form = InscriptionForm()
+
+    return render(
+        request,
+        "polls/register.html",
+        {"form": form}
+    )
 
 
 class IndexView(generic.ListView):

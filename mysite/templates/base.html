@@ -10,9 +10,34 @@
 <body>
     <header>
         {% block header %}
-            <img src="{% static 'polls/images/baniere.png' %}"
+            <img src="{% static 'polls/images/baniere_django.png' %}"
                  alt="Bandeau du site">
+        <nav>
+    <a href="{% url 'polls:index' %}">Accueil</a>
+            <a href="{% url 'polls:all' %}">Toute les questions</a>
+            <a href="{% url 'polls:statistics' %}">Statistiques</a>
+            <a href="{% url 'polls:form' %}">Ajouter une question</a>
+
+    {% if user.is_authenticated %}
+
+        <span class="identifiant">Bonjour {{ user.username }}</span>
+
+            <a href="{% url 'polls:deconnexion' %}" class="deconnexion">Déconexion</a>
+
+    {% else %}
+
+        {% if request.resolver_match.url_name != "connexion" %}
+            <a href="{% url 'polls:connexion_personnalisee' %}" class="connexion">Connexion</a>
+        {% endif %}
+
+        {% if request.resolver_match.url_name != "inscription" %}
+            <a href="{% url 'polls:inscription' %}" class="inscription">Inscription</a>
+        {% endif %}
+
+    {% endif %}
+</nav>
         {% endblock %}
+
     </header>
 
     <main>
