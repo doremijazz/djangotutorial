@@ -16,11 +16,15 @@
     <a href="{% url 'polls:index' %}">Accueil</a>
             <a href="{% url 'polls:all' %}">Toute les questions</a>
             <a href="{% url 'polls:statistics' %}">Statistiques</a>
-            <a href="{% url 'polls:form' %}">Ajouter une question</a>
+            {% if user.is_authenticated %}
+    <a href="{% url 'polls:form' %}">
+        Ajouter une question
+    </a>
+{% endif %}
 
     {% if user.is_authenticated %}
 
-        <span class="identifiant">Bonjour {{ user.username }}</span>
+        <a href="{% url 'polls:account' user.id %}" class="identifiant">Bonjour {{ user.username }}</a>
 
             <a href="{% url 'polls:deconnexion' %}" class="deconnexion">Déconexion</a>
 

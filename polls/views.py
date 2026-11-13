@@ -1,8 +1,12 @@
+import initial
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.models import User
+from django.contrib.auth.views import PasswordChangeView
 from django.db import transaction
 from django.db.models import F, Sum, Avg, Max, Model
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render, redirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.db.models import F
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
@@ -12,8 +16,9 @@ from django.views import generic
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required, user_passes_test
 
-from .forms import QuestionForm, ChoiceForm, ChoiceFormSet
+from .forms import QuestionForm, ChoiceForm, ChoiceFormSet, PasswordForm
 from .models import Choice, Question
 from .forms import InscriptionForm
 
@@ -30,7 +35,6 @@ def connexion_personnalisee(request):
     return render(request, "polls/login.html", {"erreur": erreur})
 
 
-@require_POST
 def deconnexion(request):
     logout(request)
     return redirect("polls:index")
@@ -64,6 +68,15 @@ class IndexView(generic.ListView):
         return Question.objects.filter(pub_date__lte=timezone.now()).order_by("-pub_date")[
             :5
         ]
+class UserView(generic.DetailView):
+    model = User
+    template_name = "polls/account.html"
+
+class ChangePasswordView(PasswordChangeView):
+    template_name = "polls/change_password.html"
+    form_class = PasswordForm
+    success_url = reverse_lazy("polls:account")
+
 
 class AllView(generic.ListView):
     model = Question
@@ -125,7 +138,7 @@ class StatisticsView(generic.TemplateView):
                               for q in Question.objects.all()]
         context["last"] = Question.objects.order_by("-id").first()
         return context
-
+@login_required(login_url="polls:connexion_personnalisee")
 def get_question(request):
     if request.method == "POST":
         form = QuestionForm(request.POST)
@@ -168,6 +181,75 @@ def get_question(request):
             "form_choices": form_choices,
         }
     )
+@user_passes_test(lambda user: user.is_authenticated and user.is_staff)
+def change_question(request, pk):
+
+    question = get_object_or_404(Question, pk=pk)
+    choix = list(question.choice_set.all())
+
+    if request.method == "POST":
+        form = QuestionForm(request.POST, instance=question)
+        form_choices = ChoiceFormSet(request.POST)
+
+        if form.is_valid() and form_choices.is_valid():
+
+            nouvelles_reponses = [
+                choice_form.cleaned_data["choice_text"].strip()
+                for choice_form in form_choices
+                if choice_form.cleaned_data
+                and choice_form.cleaned_data.get("choice_text", "").strip()
+                and not choice_form.cleaned_data.get("DELETE", False)
+            ]
+
+            if not nouvelles_reponses:
+                form_choices._non_form_errors = form_choices.error_class(
+                    ["Saisissez au moins une réponse."]
+                )
+
+            else:
+                with transaction.atomic():
+
+                    form.save()
+
+                    for i, texte in enumerate(nouvelles_reponses):
+
+                        if i < len(choix):
+                            choice = choix[i]
+                            choice.choice_text = texte
+                            choice.save()
+                        else:
+                            Choice.objects.create(
+                                question=question,
+                                choice_text=texte,
+                                votes=0
+                            )
+
+                    for choice in choix[len(nouvelles_reponses):]:
+                        choice.delete()
+
+                return redirect("polls:detail", pk=question.pk)
+
+    else:
+        form = QuestionForm(instance=question)
+
+        form_choices = ChoiceFormSet(
+            initial=[
+                {"choice_text": choice.choice_text}
+                for choice in choix
+            ]
+        )
+
+    return render(
+        request,
+        "polls/change_question.html",
+        {
+            "form": form,
+            "form_choices": form_choices,
+            "question": question,
+        }
+    )
+
+
 
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)

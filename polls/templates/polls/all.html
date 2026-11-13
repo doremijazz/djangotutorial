@@ -6,7 +6,11 @@
 {% if questions %}
 <ul>
     {% for question in questions %}
-       <li><a href="{% url 'polls:detail' question.id %}">ID: {{question.id}} / titre : {{ question.question_text }}</a></li>
+       <li><a href="{% url 'polls:detail' question.id %}">ID: {{question.id}} / titre : {{ question.question_text }}</a><span> Publié le {{question.pub_date}}</span> <a href="{% url 'polls:results' question.id %}" class="results">Résulats</a>{% if user.is_authenticated and user.is_staff %}
+    <a href="{% url 'polls:change_question' question.id %}">
+        Modifier la question
+    </a>
+{% endif %}</li>
     {% endfor %}
     </ul>
 {% else %}

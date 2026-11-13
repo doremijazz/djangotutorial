@@ -1,6 +1,6 @@
 from django.forms import ModelForm, Textarea, formset_factory
 from .models import Question, Choice
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.contrib.auth.models import User
 
 class InscriptionForm(UserCreationForm):
@@ -9,6 +9,9 @@ class InscriptionForm(UserCreationForm):
         fields = ["username", "email",
                   "first_name", "last_name"]
 
+class PasswordForm(PasswordChangeForm):
+    pass
+
 class QuestionForm(ModelForm):
     template_name = "polls/form.html"
 
@@ -16,7 +19,7 @@ class QuestionForm(ModelForm):
         model = Question
         fields = ["question_text"]
         widgets = {
-            "question_text": Textarea(attrs={"cols": 80, "rows": 5}),
+            "question_text": Textarea(attrs={"cols": 80, "rows": 3}),
         }
         help_texts = {
             "question_text": "Intitulé de la question"
@@ -29,7 +32,7 @@ class ChoiceForm(ModelForm):
         model = Choice
         fields = ["choice_text"]
         widgets = {
-            "choice_text": Textarea(attrs={"cols": 80, "rows": 5}),
+            "choice_text": Textarea(attrs={"cols": 80, "rows": 2}),
         }
 
 ChoiceFormSet = formset_factory(

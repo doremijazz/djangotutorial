@@ -10,6 +10,21 @@ body {
 
     background-size: cover;
 }
+h1, h2, h3, h4, h5, h6 {
+    margin-left: 10px;
+}
+.enregistrer{
+    background: darkblue;
+    color: white;
+    height: 50px;
+    width: 150px;
+}
+p{
+    display: flex;
+    align-items: center; /* Centrage vertical */
+    gap: 10px;
+    margin-left: 15px;
+}
 header a{
     color: white;
 }
@@ -50,7 +65,25 @@ header nav {
     margin-right: 20px;
 }
 
+main li{
+     line-height: 2;
+}
+
 main a {
     color: darkblue;
+    font-size: 20px;
 }
+
+main p, main span{
+    font-size: 20px;
+}
+
+main span{
+    margin-left: 15px;
+}
+
+.results{
+    margin-left: 15px;
+}
+
 

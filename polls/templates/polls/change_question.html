@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="fr">
+{% extends "base.html" %}
+{% block title %}My amazing blog{% endblock %}
+<body>
+{% block main %}
+    <h1>Modifier la question</h1>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <h2>Modifier ou ajouter des réponses</h2>
+
+        {{ form_choices.management_form }}
+        {{ form_choices.non_form_errors }}
+
+        {% for choice_form in form_choices %}
+            <p>
+                Réponse {{ forloop.counter }} :
+                {{ choice_form.choice_text }}
+                {{ choice_form.errors }}
+            </p>
+        {% endfor %}
+
+        <button type="submit" class="enregistrer">Enregistrer</button>
+    </form>
+{% endblock %}
+</body>
+</html>
